@@ -2,15 +2,20 @@ package com.ogs;
 
 import android.util.Log;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.io.*;
 
 import javax.net.ssl.HttpsURLConnection;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -176,6 +181,70 @@ public class OGS {
 //        Log.d("myApp", str);
             return new JSONObject(str);
         } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /*
+
+    curl --include \
+     --request POST \
+     --header "Content-Type: application/json" \
+     --data-binary "{
+  \"game\": {
+    \"name\": \"test\",
+    \"rules\": \"japanese\",
+    \"ranked\": false,
+    \"handicap\": 0,
+    \"time_control_parameters\": {
+      \"time_control\": \"fischer\",
+      \"initial_time\": 259200,
+      \"max_time\": 604800,
+      \"time_increment\": 86400
+    },
+    \"pause_on_weekends\": true,
+    \"width\": 9,
+    \"height\": 9,
+    \"disable_analysis\": true
+  },
+  \"challenger_color\": \"automatic\",
+  \"min_ranking\": 0,
+  \"max_ranking\": 0
+}" \
+'http://online-go.com/v1/challenges/'
+     */
+
+    public JSONObject createChallenge(String name, boolean ranked, int width, int height,
+                                      int mainTime, int periodTime) {
+        try {
+            JSONObject post = new JSONObject();
+            JSONObject game = new JSONObject();
+            game.put("name", name);
+            game.put("rules", "japanese");
+            game.put("ranked", ranked);
+            game.put("handicap", 0);
+            game.put("pause_on_weekends", false);
+            game.put("width", width);
+            game.put("height", height);
+            game.put("disable_analysis", false);
+            JSONObject time = new JSONObject();
+            time.put("time_control", "byoyomi");
+            time.put("main_time", mainTime);
+            time.put("period_time", periodTime);
+            game.put("time_control_parameters", time);
+            post.put("game", game);
+
+            post.put("challenger_color", "automatic");
+            post.put("min_ranking", 0);
+            post.put("max_ranking", 0);
+
+            String str = postURL("https://online-go.com/api/v1/challenges/", accessToken, post.toString());
+            return new JSONObject(str);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        } catch (JSONException e) {
             e.printStackTrace();
             return null;
         }
