@@ -67,15 +67,20 @@ class OGS(private val clientId: String, private val clientSecret: String) {
         }
     }
 
-    @Throws(IOException::class)
+    @Throws(IOException::class, JSONException::class)
     fun me(): JSONObject {
         val obj = JSONObject(getURL("https://online-go.com/api/v1/me/?format=json"))
         player = Player(obj)
         return obj
     }
-    @Throws(IOException::class)
+    @Throws(IOException::class, JSONException::class)
     fun notifications(): JSONArray {
         val obj = JSONArray(getURL("https://online-go.com/api/v1/me/notifications/?format=json"))
+        return obj
+    }
+    @Throws(IOException::class, JSONException::class)
+    fun uiConfig(): JSONArray {
+        val obj = JSONObject(getURL("https://online-go.com/api/v1/ui/config/?format=json"))
         return obj
     }
 
@@ -208,6 +213,17 @@ class OGS(private val clientId: String, private val clientSecret: String) {
             Log.d(TAG, "socket:$socket player:$player")
             if (socket != null) {
                 return GameConnection(this, socket!!, gameId, player!!.id)
+            } else {
+                return null
+            }
+        }
+    }
+
+    fun openNotificationConnection(auth: String, callbacks: NotificationCallbacks) {
+        synchronized(this) {
+            Log.d(TAG, "socket:$socket player:$player")
+            if (socket != null) {
+                return NotificationConnection(socket!!, player!!.id, auth, callbacks)
             } else {
                 return null
             }
