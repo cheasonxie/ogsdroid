@@ -68,7 +68,7 @@ class Alarm : BroadcastReceiver() {
     fun setAlarm(context: Context) {
         val pref = PreferenceManager.getDefaultSharedPreferences(context)
         val notify = pref.getBoolean("pref_notify", false)
-        val notifyTime = pref.getInt("pref_notify_time", 5)
+        val notifyTime = pref.getString("pref_notify_time", "5").toInt()
 
         if (notify) {
             val am = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
