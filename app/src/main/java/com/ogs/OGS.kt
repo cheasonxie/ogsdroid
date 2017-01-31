@@ -13,6 +13,10 @@ import javax.net.ssl.HttpsURLConnection
 
 class OGS(private val clientId: String, private val clientSecret: String) {
 
+    init {
+        println("OGS init")
+    }
+
     @Throws(IOException::class)
     private fun getURL(url: String, method: String = "GET"): String {
         Log.d(TAG, "GET $url")
@@ -155,6 +159,7 @@ class OGS(private val clientId: String, private val clientSecret: String) {
      */
     fun openSocket() {
         synchronized(this) {
+            println("openSocket socket = $socket")
             if (socket != null)
                 return
 

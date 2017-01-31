@@ -544,6 +544,7 @@ class Board {
     }
 
     public void addStone(int x, int y) {
+        //System.out.println(String.format("NJ addStone - %d %d %d", x, y, lastV));
         lastV = oppositeColor(lastV);
 
         board[y][x] = lastV;

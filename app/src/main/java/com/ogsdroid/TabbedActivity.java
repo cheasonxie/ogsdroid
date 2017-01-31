@@ -79,6 +79,7 @@ public class TabbedActivity extends AppCompatActivity {
             seek.disconnect();
         if (ogs != null)
             ogs.closeSocket();
+
     }
 
     @Override
@@ -166,17 +167,6 @@ public class TabbedActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public static class MyService extends IntentService {
-        MyService() {
-            super("MyService");
-        }
-
-        @Override
-        protected void onHandleIntent(Intent intent) {
-            String data = intent.getDataString();
-        }
-    }
-
     static class MyGamesAdapter extends RecyclerView.Adapter<MyGamesAdapter.ViewHolder> {
         List<Game> mGames;
         Activity mActivity;
@@ -255,6 +245,7 @@ public class TabbedActivity extends AppCompatActivity {
             Log.d(TAG, "GetMe.doInBackground()");
             try {
                 ogs.me();
+                //ogs.notifications();
             } catch (UnknownHostException ex) {
                 ex.printStackTrace();
                 return 2;
@@ -350,7 +341,9 @@ public class TabbedActivity extends AppCompatActivity {
         }
     }
 
-    private class GetMyGamesList extends AsyncTask<OGS, Void, ArrayList<Game>> {
+    private class GetMyGamesList extends AsyncTask<OGS, Integer, ArrayList<Game>> {
+
+        private int totalGames = 0;
 
         @Override
         protected void onPreExecute() {
@@ -368,7 +361,9 @@ public class TabbedActivity extends AppCompatActivity {
                 JSONObject games = ogs.listGames();
                 //Log.d(TAG, "games = " + games);
                 JSONArray results = games.getJSONArray("results");
+                totalGames = results.length();
                 for (int i = 0; i < results.length(); i++) {
+                    publishProgress(i);
                     JSONObject game = results.getJSONObject(i);
                     int id = game.getInt("id");
                     JSONObject details = ogs.getGameDetails(id);
@@ -411,6 +406,15 @@ public class TabbedActivity extends AppCompatActivity {
                 pb.setVisibility(View.GONE);
             myGamesAdapter.addAll(list);
             myGamesAdapter.notifyDataSetChanged();
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            ProgressBar pb = (ProgressBar) TabbedActivity.this.findViewById(R.id.my_games_progress_bar);
+            if (pb != null) {
+                pb.setIndeterminate(false);
+                pb.setProgress((int) (1.0f * values[0] / totalGames * 100));
+            }
         }
     }
 

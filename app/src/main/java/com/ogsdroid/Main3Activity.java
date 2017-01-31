@@ -86,6 +86,7 @@ public class Main3Activity extends AppCompatActivity {
             bv.whitePlayer = details.whitePlayer;
 
             ogs.openSocket();
+            System.out.println("NJ opening game connection to " + currentGameId);
             gameCon = ogs.openGameConnection(currentGameId);
 
             bv.gameConnection = gameCon;

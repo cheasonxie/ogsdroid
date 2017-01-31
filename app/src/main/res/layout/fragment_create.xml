@@ -135,6 +135,42 @@
                 android:layout_height="wrap_content"
                 android:text="Challenge" />
 
+            <Button
+                android:id="@+id/challenge2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Challenge2" />
+
+            <Button
+                android:id="@+id/challenge3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Challenge3" />
+
+            <Button
+                android:id="@+id/challenge4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Challenge4" />
+
+            <Button
+                android:id="@+id/challenge5"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Challenge5" />
+
+            <Button
+                android:id="@+id/challenge6"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Challenge6" />
+
+            <Button
+                android:id="@+id/challenge7"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Challenge7" />
+
         </LinearLayout>
     </android.support.v4.widget.NestedScrollView>
 

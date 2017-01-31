@@ -85,7 +85,7 @@ class GameConnection internal constructor(ogs: OGS, private val socket: Socket, 
         gameAuth = gameDetails!!.getString("auth")
         chatAuth = gameDetails.getString("game_chat_auth")
 
-        Log.d(TAG, "socket = $socket")
+        Log.d(TAG, "NJ socket = $socket connecting to $gameId")
         emit("game/connect", createJsonObject {
             put("auth", gameAuth)
             put("game_id", gameId)
@@ -104,6 +104,8 @@ class GameConnection internal constructor(ogs: OGS, private val socket: Socket, 
     }
 
     fun disconnect() {
+        println("NJ disconnecting from $gameId")
+
         socket.off("game/$gameId/clock")
                 .off("game/$gameId/gamedata")
                 .off("game/$gameId/move")
@@ -120,6 +122,7 @@ class GameConnection internal constructor(ogs: OGS, private val socket: Socket, 
         emit("game/disconnect", createJsonObject {
             put("game_id", gameId)
         })
+
     }
 
     private fun gamedata(obj: JSONObject) {
@@ -128,6 +131,7 @@ class GameConnection internal constructor(ogs: OGS, private val socket: Socket, 
     }
 
     private fun move(obj: JSONObject) {
+        println("NJ move obj=$obj")
         val a = obj.getJSONArray("move")
         callbacks?.move(a.getInt(0), a.getInt(1))
     }
