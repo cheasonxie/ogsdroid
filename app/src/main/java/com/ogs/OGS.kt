@@ -79,7 +79,7 @@ class OGS(private val clientId: String, private val clientSecret: String) {
         return obj
     }
     @Throws(IOException::class, JSONException::class)
-    fun uiConfig(): JSONArray {
+    fun uiConfig(): JSONObject {
         val obj = JSONObject(getURL("https://online-go.com/api/v1/ui/config/?format=json"))
         return obj
     }
@@ -219,7 +219,7 @@ class OGS(private val clientId: String, private val clientSecret: String) {
         }
     }
 
-    fun openNotificationConnection(auth: String, callbacks: NotificationCallbacks) {
+    fun openNotificationConnection(auth: String, callbacks: NotificationConnection.NotificationConnectionCallbacks): NotificationConnection? {
         synchronized(this) {
             Log.d(TAG, "socket:$socket player:$player")
             if (socket != null) {

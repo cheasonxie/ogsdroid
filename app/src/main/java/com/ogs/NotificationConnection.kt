@@ -20,10 +20,10 @@ class NotificationConnection (
 		socket.on("notification") { args ->
 			val obj = args[0] as JSONObject
 			Log.d(TAG, "got notification = " + obj)
-			callbacks?.notification(obj)
-		})
+			callbacks.notification(obj)
+		}
 
-		emit("notification/connect", createJsonObject {
+		socket.emit("notification/connect", createJsonObject {
 			put("player_id", userId)
 			put("auth", auth)
 		})

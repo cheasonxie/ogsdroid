@@ -31,6 +31,9 @@
             </intent-filter>
         </activity>
 
+        <service android:name="com.ogs.NotificationService"
+            android:exported="false" />
+
         <service
             android:name=".MyTestService"
             android:exported="false" />

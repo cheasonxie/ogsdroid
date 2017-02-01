@@ -1,59 +1,111 @@
 package com.ogs
 
-import android.util.Log
-import io.socket.client.IO
-import io.socket.client.Socket
-import org.json.JSONArray
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.app.Service
+import android.content.Context
+import android.content.Intent
+import android.preference.PreferenceManager
+import android.support.v4.app.NotificationCompat
+import android.widget.Toast
+import com.ogsdroid.LoginActivity
+import com.ogsdroid.R
 import org.json.JSONException
 import org.json.JSONObject
-import java.io.IOException
-import java.net.URL
-import java.net.URLEncoder
-import javax.net.ssl.HttpsURLConnection
+import java.util.*
+import kotlin.concurrent.thread
 
-class NotificationService() : Service() {
-	val ogs = OGS("82ff83f2631a55273c31", "cd42d95fd978348d57dc909a9aecd68d36b17bd2")
-	var notificationConnection: NotificationConnection? = null
+class NotificationService : Service() {
+    val ogs = OGS("82ff83f2631a55273c31", "cd42d95fd978348d57dc909a9aecd68d36b17bd2")
+    var notificationConnection: NotificationConnection? = null
+    val moves = ArrayList<String>()
 
-	init {
-		println("NotificationService init")
-	}
+    init {
+        println("NotificationService init")
+    }
 
-	override fun onBind(Intent intent) = null
+    override fun onBind(p0: Intent?) = null
 
-	override fun onCreate() {
-		println("NotificationService.onCreate()")
-		Toast.makeText(this, "NotificationService onCreate", Toast.LENGTH_SHORT).show()
+    override fun onCreate() {
+        println("NotificationService.onCreate()")
+        Toast.makeText(this, "NotificationService onCreate", Toast.LENGTH_SHORT).show()
 
-		val t = thread(start=true) {
-			println("NJ NotificationService getting me")
-			ogs.me()
+        val t = thread(start = true) {
 
-			println("NJ NotificationService getting ui config")
-			val config = ogs.uiConfig()
-			val auth = config.getString("notification_auth")
+            try {
+                val pref = PreferenceManager.getDefaultSharedPreferences(this)
+                ogs.accessToken = pref.getString("accessToken", "")
 
-			println("NJ NotificationService opening socket")
-			ogs.openSocket()
-			println("NJ NotificationService opening notification connection")
-			notificationConnection = ogs.openNotificationConnection(auth, { obj ->
-				println("NJ in service notification = $obj")
-			})
-			println("NJ NotificationService created and waiting!")
-		}
+                println("NJ NotificationService getting me")
+                ogs.me()
 
-		return START_NOT_STICKY
-	}
+                println("NJ NotificationService getting ui config")
+                val config = ogs.uiConfig()
+                val auth = config.getString("notification_auth")
 
-	override fun onStartCommand(Intent intent, int flags, int startId) {
-		println("NotificationService.onStartCommand(intent=$intent, flags=$flags, startId=$startId)")
-		Toast.makeText(this, "NotificationService onStartCommand", Toast.LENGTH_SHORT).show()
-	}
+                println("NJ NotificationService opening socket")
+                ogs.openSocket()
+                println("NJ NotificationService opening notification connection")
+                notificationConnection = ogs.openNotificationConnection(auth,
+                        object : NotificationConnection.NotificationConnectionCallbacks {
+                            override fun notification(obj: JSONObject) {
+                                try {
+                                    println("NJ obj = ${obj}")
 
-	override fun onDestroy() {
-		notificationConnection?.disconnect()
-		ogs.closeSocket()
-		println("NotificationService.onDestroy()")
-		Toast.makeText(this, "NotificationService onDestroy", Toast.LENGTH_SHORT).show()
-	}
+                                    if (obj.getString("type") == "delete")
+                                        moves.remove(obj.getString("id"))
+
+                                    if (obj.getString("type") == "yourMove")
+                                        moves.add(obj.getString("id"))
+
+                                    println("NJ moves.size = ${moves.size}")
+
+                                    val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                                    if (moves.size == 0) {
+                                        nm.cancel(1)
+                                    } else {
+                                        val intent = Intent(this@NotificationService, LoginActivity::class.java)
+                                        val pi = PendingIntent.getActivity(this@NotificationService, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+
+                                        val builder = NotificationCompat.Builder(this@NotificationService)
+                                                .setSmallIcon(R.drawable.testnotification)
+                                                .setContentTitle("OGS")
+                                                .setContentIntent(pi)
+
+                                        if (moves.size == 1)
+                                            builder.setContentText("It's your move!")
+                                        else
+                                            builder.setContentText("It's your move in ${moves.size} games!")
+
+                                        nm.notify(1, builder.build())
+
+                                        println("NJ in service notification = $obj")
+                                    }
+                                } catch (ex: JSONException) {
+                                    println("bad json obj $obj")
+                                    ex.printStackTrace()
+                                }
+                            }
+                        })
+
+                println("NJ NotificationService created and waiting!")
+
+            } catch (ex: Exception) {
+                ex.printStackTrace()
+            }
+        }
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        println("NotificationService.onStartCommand(intent=$intent, flags=$flags, startId=$startId)")
+        Toast.makeText(this, "NotificationService onStartCommand", Toast.LENGTH_SHORT).show()
+        return START_NOT_STICKY
+    }
+
+    override fun onDestroy() {
+        notificationConnection?.disconnect()
+        ogs.closeSocket()
+        println("NotificationService.onDestroy()")
+        Toast.makeText(this, "NotificationService onDestroy", Toast.LENGTH_SHORT).show()
+    }
 }

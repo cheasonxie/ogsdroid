@@ -35,6 +35,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.ogs.Challenge;
+import com.ogs.NotificationService;
 import com.ogs.OGS;
 import com.ogs.SeekGraphConnection;
 
@@ -100,12 +101,13 @@ public class TabbedActivity extends AppCompatActivity {
         ogs.openSocket();
         new GetMe(ogs).execute();
 
-        NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        nm.cancelAll();
+        //NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        //nm.cancelAll();
 
-        Alarm al = new Alarm();
-        al.cancelAlarm(this);
-        al.setAlarm(this);
+        //Alarm al = new Alarm();
+        //al.cancelAlarm(this);
+        //al.setAlarm(this);
+
     }
 
     @Override
@@ -141,6 +143,11 @@ public class TabbedActivity extends AppCompatActivity {
                 challengeList);
 
         myGamesAdapter = new MyGamesAdapter(this, gameList);
+
+        Intent intent = new Intent(this, NotificationService.class);
+        System.out.println("NJ creating service....");
+        startService(intent);
+        System.out.println("NJ done creating service....");
     }
 
     @Override
@@ -246,6 +253,9 @@ public class TabbedActivity extends AppCompatActivity {
             try {
                 ogs.me();
                 //ogs.notifications();
+            } catch (JSONException ex) {
+                ex.printStackTrace();
+                return 2;
             } catch (UnknownHostException ex) {
                 ex.printStackTrace();
                 return 2;
