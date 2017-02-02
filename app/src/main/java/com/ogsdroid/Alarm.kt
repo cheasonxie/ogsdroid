@@ -9,6 +9,7 @@ import android.content.Intent
 import android.net.ConnectivityManager
 import android.preference.PreferenceManager
 import android.support.v4.app.NotificationCompat
+import android.widget.Toast
 import org.json.JSONException
 import java.io.IOException
 
@@ -38,6 +39,9 @@ class Alarm : BroadcastReceiver() {
         //val pm = context.getSystemService(Context.POWER_SERVICE) as PowerManager
         //val wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "OGS")
         //wl.acquire()
+
+        Toast.makeText(context, "Alarm running!", Toast.LENGTH_SHORT).show()
+        println("OGS Alarm: running")
 
         val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val ni = cm.activeNetworkInfo
@@ -89,6 +93,7 @@ class Alarm : BroadcastReceiver() {
             val pi = PendingIntent.getBroadcast(context, 0, intent, 0)
             val interval = getTimeInterval(notifyTime)
             am.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis() + interval, interval, pi)
+            Toast.makeText(context, "Alarm set!", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -97,6 +102,7 @@ class Alarm : BroadcastReceiver() {
         val pi = PendingIntent.getBroadcast(context, 0, intent, 0)
         val am = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         am.cancel(pi)
+        Toast.makeText(context, "Alarm canceled!", Toast.LENGTH_SHORT).show()
     }
 }
 

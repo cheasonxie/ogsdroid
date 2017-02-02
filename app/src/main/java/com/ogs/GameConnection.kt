@@ -83,35 +83,21 @@ class GameConnection internal constructor(ogs: OGS, private val socket: Socket, 
         })
 
         val gameDetails = ogs.getGameDetails(gameId)
-        println("NJ gameDetails = ${gameDetails?.toString(2)}")
         gameAuth = gameDetails!!.getString("auth")
         chatAuth = gameDetails.getString("game_chat_auth")
 
-        Log.d(TAG, "NJ socket = $socket connecting to $gameId with gameAuth=$gameAuth")
-        if (gameAuth != "null") {
-            emit("game/connect", createJsonObject {
-                if (gameAuth != "null")
-                    put("auth", gameAuth)
-                put("game_id", gameId)
-                put("player_id", userId)
-                put("game_type", "game")
-                put("chat", 1)
-            })
-            emit("game/clear_delayed_resign", createJsonObject {
-                if (gameAuth != "null")
-                    put("auth", gameAuth)
-                put("game_id", gameId)
-                put("player_id", userId)
-            })
-        }
-        emit("game/wait", createJsonObject {
+        Log.d(TAG, "NJ socket = $socket connecting to $gameId")
+        emit("game/connect", createJsonObject {
+            put("auth", gameAuth)
             put("game_id", gameId)
-            put("player_id", 0)
-            put("chat", 1)
+            put("player_id", userId)
             put("game_type", "game")
+            put("chat", 1)
         })
-        emit("ui-pushes/subscribe", createJsonObject {
-            put("channel", "game-$gameId")
+        emit("game/clear_delayed_resign", createJsonObject {
+            put("auth", gameAuth)
+            put("game_id", gameId)
+            put("player_id", userId)
         })
         emit("chat/join", createJsonObject {
             put("channel", "game-$gameId")

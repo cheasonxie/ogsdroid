@@ -103,6 +103,9 @@ public class TabbedActivity extends AppCompatActivity {
         ogs.setAccessToken(accessToken);
         ogs.openSocket();
         new GetMe(ogs).execute();
+
+        NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        nm.cancelAll();
     }
 
     @Override
@@ -138,9 +141,6 @@ public class TabbedActivity extends AppCompatActivity {
                 challengeList);
 
         myGamesAdapter = new MyGamesAdapter(this, gameList);
-
-        NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        nm.cancelAll();
 
         Alarm al = new Alarm();
         al.cancelAlarm(this);
@@ -450,7 +450,7 @@ public class TabbedActivity extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            return 3;
+            return 2;
         }
 
         @Override
