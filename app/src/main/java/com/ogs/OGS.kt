@@ -127,8 +127,8 @@ class OGS(private val clientId: String, private val clientSecret: String) {
                         mainTime: Int, periodTime: Int, periods: Int): JSONObject {
         val post = createJsonObject {
             put("challenger_color", "automatic")
-            put("min_ranking", -1000)
-            put("max_ranking", 1000)
+            put("min_ranking", 25)
+            put("max_ranking", 25)
             put("game", createJsonObject {
                 put("name", name)
                 put("rules", "japanese")
@@ -156,6 +156,7 @@ class OGS(private val clientId: String, private val clientSecret: String) {
 
     @Throws(IOException::class)
     fun deleteChallenge(challenge: Int) {
+        println("NJ deleting challenge $challenge")
         deleteURL("https://online-go.com/api/v1/challenges/$challenge")
     }
 
@@ -181,6 +182,10 @@ class OGS(private val clientId: String, private val clientSecret: String) {
                 Log.e("myApp", "socket connect timeout")
             }.on(Socket.EVENT_RECONNECT) {
                 Log.d("myApp", "socket reconnect")
+            //}.on(Socket.EVENT_PING) {
+            //    Log.d("myApp", "ping")
+            //}.on(Socket.EVENT_PONG) {
+            //    Log.d("myApp", "pong")
             }
             socket!!.connect()
         }
@@ -188,6 +193,7 @@ class OGS(private val clientId: String, private val clientSecret: String) {
 
     fun closeSocket() {
         synchronized(this) {
+            println("closeSocket socket = $socket")
             socket?.disconnect()
             socket = null
         }

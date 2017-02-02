@@ -8,6 +8,7 @@ import android.content.Intent
 import android.preference.PreferenceManager
 import android.support.v4.app.NotificationCompat
 import android.widget.Toast
+import com.ogsdroid.Globals
 import com.ogsdroid.LoginActivity
 import com.ogsdroid.R
 import org.json.JSONException
@@ -16,7 +17,7 @@ import java.util.*
 import kotlin.concurrent.thread
 
 class NotificationService : Service() {
-    val ogs = OGS("82ff83f2631a55273c31", "cd42d95fd978348d57dc909a9aecd68d36b17bd2")
+    var ogs: OGS = Globals.getOGS()
     var notificationConnection: NotificationConnection? = null
     val moves = ArrayList<String>()
 
@@ -104,7 +105,7 @@ class NotificationService : Service() {
 
     override fun onDestroy() {
         notificationConnection?.disconnect()
-        ogs.closeSocket()
+        Globals.putOGS()
         println("NotificationService.onDestroy()")
         Toast.makeText(this, "NotificationService onDestroy", Toast.LENGTH_SHORT).show()
     }

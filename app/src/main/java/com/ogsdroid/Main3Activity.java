@@ -48,6 +48,7 @@ public class Main3Activity extends AppCompatActivity {
     private MediaPlayer passSound;
 
     private int currentGameId;
+    private OGS ogs;
 
     @Override
     protected void onPostResume() {
@@ -59,7 +60,7 @@ public class Main3Activity extends AppCompatActivity {
         {
             SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
 
-            OGS ogs = Globals.INSTANCE.getOgs();
+            ogs = Globals.INSTANCE.getOGS();
 
             JSONObject gameDetails = ogs.getGameDetails(currentGameId);
             final GameDetails details = new GameDetails(gameDetails);
@@ -100,7 +101,7 @@ public class Main3Activity extends AppCompatActivity {
                     Main3Activity.this.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            if (!msg.getUsername().equals(Globals.INSTANCE.getOgs().getPlayer().getUsername())) {
+                            if (!msg.getUsername().equals(ogs.getPlayer().getUsername())) {
                                 Toast toast = Toast.makeText(Main3Activity.this, msg.toString(), Toast.LENGTH_LONG);
                                 toast.show();
                             }
@@ -314,6 +315,8 @@ public class Main3Activity extends AppCompatActivity {
             gameCon.disconnect();
             gameCon = null;
         }
+        Globals.INSTANCE.putOGS();
+        ogs = null;
     }
 
     @Override
@@ -339,7 +342,7 @@ public class Main3Activity extends AppCompatActivity {
                 if (i == EditorInfo.IME_NULL
                         && keyEvent.getAction() == KeyEvent.ACTION_UP) {
 
-                    gameCon.sendChatMessage(Globals.INSTANCE.getOgs().getPlayer(),
+                    gameCon.sendChatMessage(ogs.getPlayer(),
                             editText.getText().toString(), bv.board.moveNumber);
                     editText.setText("");
                 }

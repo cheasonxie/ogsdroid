@@ -53,7 +53,7 @@ import java.util.List;
 public class TabbedActivity extends AppCompatActivity {
     private static final String TAG = "TabbedActivity";
     static ArrayList<Game> gameList = new ArrayList<>();
-    static OGS ogs;
+    public OGS ogs;
     ArrayList<Challenge> challengeList = new ArrayList<>();
     MyGamesAdapter myGamesAdapter;
     ArrayAdapter<Challenge> challengeAdapter;
@@ -78,8 +78,6 @@ public class TabbedActivity extends AppCompatActivity {
 
         if (seek != null)
             seek.disconnect();
-        if (ogs != null)
-            ogs.closeSocket();
 
     }
 
@@ -87,6 +85,9 @@ public class TabbedActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         Log.d(TAG, "onStop");
+
+        Globals.INSTANCE.putOGS();
+        ogs = null;
     }
 
     @Override
@@ -96,18 +97,12 @@ public class TabbedActivity extends AppCompatActivity {
 
         pref = PreferenceManager.getDefaultSharedPreferences(this);
         String accessToken = pref.getString("accessToken", "");
-        ogs = Globals.INSTANCE.getOgs();
+        if (ogs == null) {
+            ogs = Globals.INSTANCE.getOGS();
+        }
         ogs.setAccessToken(accessToken);
         ogs.openSocket();
         new GetMe(ogs).execute();
-
-        //NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        //nm.cancelAll();
-
-        //Alarm al = new Alarm();
-        //al.cancelAlarm(this);
-        //al.setAlarm(this);
-
     }
 
     @Override
@@ -144,10 +139,18 @@ public class TabbedActivity extends AppCompatActivity {
 
         myGamesAdapter = new MyGamesAdapter(this, gameList);
 
-        Intent intent = new Intent(this, NotificationService.class);
-        System.out.println("NJ creating service....");
-        startService(intent);
-        System.out.println("NJ done creating service....");
+        NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        nm.cancelAll();
+
+        Alarm al = new Alarm();
+        al.cancelAlarm(this);
+        al.setAlarm(this);
+
+
+        //Intent intent = new Intent(this, NotificationService.class);
+        //System.out.println("NJ creating service....");
+        //startService(intent);
+        //System.out.println("NJ done creating service....");
     }
 
     @Override
@@ -252,7 +255,6 @@ public class TabbedActivity extends AppCompatActivity {
             Log.d(TAG, "GetMe.doInBackground()");
             try {
                 ogs.me();
-                //ogs.notifications();
             } catch (JSONException ex) {
                 ex.printStackTrace();
                 return 2;
@@ -337,7 +339,7 @@ public class TabbedActivity extends AppCompatActivity {
                                         }
                                     });
                                 } else {
-                                    Log.d(TAG, "could not accept " + c);
+                                    //Log.d(TAG, "could not accept " + c);
                                 }
 
                             }
@@ -421,10 +423,6 @@ public class TabbedActivity extends AppCompatActivity {
         @Override
         protected void onProgressUpdate(Integer... values) {
             ProgressBar pb = (ProgressBar) TabbedActivity.this.findViewById(R.id.my_games_progress_bar);
-            if (pb != null) {
-                pb.setIndeterminate(false);
-                pb.setProgress((int) (1.0f * values[0] / totalGames * 100));
-            }
         }
     }
 

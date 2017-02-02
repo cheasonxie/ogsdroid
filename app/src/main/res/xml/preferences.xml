@@ -27,5 +27,9 @@
             android:title="Poll time"
             android:summary="How often to poll for your move?"
             android:defaultValue="3" />
+        <CheckBoxPreference
+            android:key="pref_notify_wifi"
+            android:title="Only poll when on WiFi"
+            android:defaultValue="false" />
     </PreferenceCategory>
 </PreferenceScreen>
